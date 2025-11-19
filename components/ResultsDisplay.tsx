@@ -189,7 +189,9 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
              <div className="space-y-3">
                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                  Miniatura YouTube / Vídeo (16:9)
-                 <HelpCircle className="w-4 h-4 text-gray-400" title="Imagem gerada com IA mantendo o pregador e adicionando o título" />
+                 <span title="Imagem gerada com IA mantendo o pregador e adicionando o título">
+                   <HelpCircle className="w-4 h-4 text-gray-400" />
+                 </span>
                </label>
                <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group shadow-sm hover:shadow-md transition">
                  <img src={result.generatedImages.thumbnail16_9} alt="Generated Thumbnail" className="w-full h-full object-cover" />
@@ -209,7 +211,9 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
              <div className="space-y-3">
                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                  Capa do Episódio Spotify (1:1)
-                 <HelpCircle className="w-4 h-4 text-gray-400" title="Imagem quadrada otimizada para players de áudio" />
+                 <span title="Imagem quadrada otimizada para players de áudio">
+                   <HelpCircle className="w-4 h-4 text-gray-400" />
+                 </span>
                </label>
                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group shadow-sm hover:shadow-md transition w-3/4 mx-auto md:w-full">
                  <img src={result.generatedImages.artwork1_1} alt="Generated Artwork" className="w-full h-full object-cover" />
