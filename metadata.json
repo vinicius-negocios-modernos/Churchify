@@ -1,0 +1,5 @@
+{
+  "name": "Churchify - Sermon Repurposing Tool",
+  "description": "An AI-powered tool to transform church sermon videos/transcripts into engaging Spotify episodes and viral social media clips.",
+  "requestFramePermissions": []
+}

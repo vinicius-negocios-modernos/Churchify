@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      // -----------------------------------------------------------------------
+      // ATENÇÃO: REGRA PARA USO INTERNO (SEM LOGIN REAL)
+      // -----------------------------------------------------------------------
+      // O App atualmente usa um "mock" de autenticação (AuthContext) para pular
+      // a tela de login e facilitar o uso pela equipe de mídia.
+      //
+      // Por isso, não podemos usar "allow read, write: if request.auth != null",
+      // pois o app não envia o token de autenticação real.
+      //
+      // Esta regra "if true" libera o acesso para quem tiver as chaves de configuração,
+      // removendo o bloqueio de data (30 dias) do modo de teste.
+      // -----------------------------------------------------------------------
+      
+      allow read, write: if true;
+    }
+  }
+}
