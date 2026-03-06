@@ -152,6 +152,10 @@ export const mockStorageFrom = vi.fn().mockReturnValue({
   remove: mockStorageRemove,
 });
 
+// ─── Functions mock ─────────────────────────────────────────────────────────
+
+export const mockFunctionsInvoke = vi.fn().mockResolvedValue({ data: null, error: null });
+
 // ─── Supabase client mock ───────────────────────────────────────────────────
 
 export const mockSupabaseClient = {
@@ -164,6 +168,9 @@ export const mockSupabaseClient = {
   from: mockFrom,
   storage: {
     from: mockStorageFrom,
+  },
+  functions: {
+    invoke: mockFunctionsInvoke,
   },
 };
 
