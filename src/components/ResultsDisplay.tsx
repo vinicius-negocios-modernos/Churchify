@@ -53,10 +53,10 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
               {result.spotifyTitles.map((title, idx) => (
                 <div key={idx} className="group flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-green-400 transition-colors">
                   <span className="text-gray-900 font-medium">{title}</span>
-                  <button 
+                  <button
                     onClick={() => copyToClipboard(title, `title-${idx}`)}
-                    className="text-gray-400 hover:text-green-600 transition-colors p-2 opacity-0 group-hover:opacity-100"
-                    title="Copiar título"
+                    className="text-gray-500 hover:text-green-600 transition-colors p-2 opacity-0 group-hover:opacity-100"
+                    aria-label={`Copiar título: ${title}`}
                   >
                     {copiedField === `title-${idx}` ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                   </button>
@@ -71,9 +71,10 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                 <label className="text-sm font-bold text-gray-700 uppercase tracking-wide flex items-center gap-2">
                   Estrutura da Descrição
                 </label>
-                <button 
+                <button
                   onClick={() => copyToClipboard(fullDescription, 'full')}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-full hover:bg-green-700 transition-colors shadow-sm"
+                  aria-label="Copiar descrição completa para Spotify"
                 >
                   {copiedField === 'full' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   Copiar Descrição Pronta
@@ -115,7 +116,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                   <p className="text-gray-800 font-medium italic">&ldquo;{result.spotifyCTA}&rdquo;</p>
                 </div>
              </div>
-             <p className="text-xs text-gray-400 mt-2 text-center">Esta é a ordem exata que será copiada para a área de transferência.</p>
+             <p className="text-xs text-gray-500 mt-2 text-center">Esta é a ordem exata que será copiada para a área de transferência.</p>
           </div>
 
            {/* Polls Section */}
@@ -142,9 +143,10 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                     </li>
                   ))}
                 </ul>
-                 <button 
+                 <button
                     onClick={() => copyToClipboard(result.spotifyPollQuestion + '\n' + result.spotifyPollOptions.join('\n'), 'poll')}
-                    className="mt-4 w-full text-xs text-gray-400 hover:text-white border border-gray-600 rounded py-2 hover:bg-white/10 transition-colors"
+                    className="mt-4 w-full text-xs text-gray-300 hover:text-white border border-gray-600 rounded py-2 hover:bg-white/10 transition-colors"
+                    aria-label="Copiar enquete do Spotify"
                   >
                     {copiedField === 'poll' ? "Enquete Copiada!" : "Copiar Pergunta e Opções"}
                   </button>
@@ -162,9 +164,10 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                     </span>
                   ))}
                 </div>
-                <button 
+                <button
                   onClick={() => copyToClipboard(result.tags.join(', '), 'tags')}
                   className="mt-4 text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
+                  aria-label="Copiar tags SEO"
                 >
                   {copiedField === 'tags' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                   Copiar Tags
@@ -189,7 +192,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
              <div className="space-y-3">
                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                  Miniatura YouTube / Vídeo (16:9)
-                 <span title="Imagem gerada com IA mantendo o pregador e adicionando o título"><HelpCircle className="w-4 h-4 text-gray-400" /></span>
+                 <span title="Imagem gerada com IA mantendo o pregador e adicionando o título"><HelpCircle className="w-4 h-4 text-gray-500" /></span>
                </label>
                <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group shadow-sm hover:shadow-md transition">
                  <img src={result.generatedImages.thumbnail16_9} alt="Generated Thumbnail" className="w-full h-full object-cover" />
@@ -209,7 +212,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
              <div className="space-y-3">
                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                  Capa do Episódio Spotify (1:1)
-                 <span title="Imagem quadrada otimizada para players de áudio"><HelpCircle className="w-4 h-4 text-gray-400" /></span>
+                 <span title="Imagem quadrada otimizada para players de áudio"><HelpCircle className="w-4 h-4 text-gray-500" /></span>
                </label>
                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group shadow-sm hover:shadow-md transition w-3/4 mx-auto md:w-full">
                  <img src={result.generatedImages.artwork1_1} alt="Generated Artwork" className="w-full h-full object-cover" />
@@ -289,9 +292,10 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
           {result.marketingHooks.map((hook, idx) => (
             <div key={idx} className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
               <p className="text-sm leading-relaxed font-medium">&ldquo;{hook}&rdquo;</p>
-              <button 
+              <button
                 onClick={() => copyToClipboard(hook, `hook-${idx}`)}
                 className="mt-3 text-xs text-blue-300 hover:text-white transition-colors flex items-center gap-1"
+                aria-label={`Copiar call to action: ${hook.substring(0, 40)}`}
               >
                 {copiedField === `hook-${idx}` ? "Copiado!" : "Copiar Texto"}
               </button>

@@ -49,9 +49,10 @@ export const Layout: React.FC = () => {
             </div>
             <span className="text-lg font-bold tracking-tight text-gray-900">Churchify</span>
           </div>
-          <button 
+          <button
             className="md:hidden ml-auto text-gray-500"
             onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Fechar menu"
           >
             <X size={24} />
           </button>
@@ -59,7 +60,7 @@ export const Layout: React.FC = () => {
 
         <div className="p-4">
           <div className="mb-6 px-2">
-             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Igreja</p>
+             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Igreja</p>
              <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
                <p className="font-bold text-indigo-900 text-sm">Igreja Batista</p>
                <p className="text-xs text-indigo-600">Plano Free</p>
@@ -116,7 +117,7 @@ export const Layout: React.FC = () => {
               <Mic2 className="w-6 h-6" />
               <span className="font-bold text-gray-900">Churchify</span>
            </div>
-           <button onClick={() => setIsMobileMenuOpen(true)} className="text-gray-600">
+           <button onClick={() => setIsMobileMenuOpen(true)} className="text-gray-600" aria-label="Abrir menu">
              <Menu size={24} />
            </button>
         </header>

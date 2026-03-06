@@ -90,13 +90,13 @@ export const Login: React.FC = () => {
                 <>
                    <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
                    <span>Continuar com Google</span>
-                   <ArrowRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                   <ArrowRight className="w-4 h-4 text-gray-500 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </Button>
             
             <div className="mt-6 text-center">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-500">
                 Ao entrar, você concorda com nossos Termos de Serviço e Política de Privacidade.
               </p>
             </div>

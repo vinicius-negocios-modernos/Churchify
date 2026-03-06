@@ -1,0 +1,27 @@
+[2026-01-14T23:44:24.820Z] [INFO] Starting MCP installation...
+[2026-01-14T23:44:24.824Z] [INFO] Platform: darwin
+[2026-01-14T23:44:24.824Z] [INFO] Selected MCPs: browser, context7, desktop-commander
+[2026-01-14T23:44:24.825Z] [INFO] Installing Browser (Puppeteer)...
+[2026-01-14T23:44:24.826Z] [INFO] Installing Desktop Commander...
+[2026-01-14T23:44:24.826Z] [INFO] Installing Context7...
+[2026-01-14T23:44:24.827Z] [INFO] Validating package: @modelcontextprotocol/server-puppeteer
+[2026-01-14T23:44:24.827Z] [INFO] Validating package: @wonderwhy-er/desktop-commander
+[2026-01-14T23:44:24.827Z] [INFO] Validating package: @upstash/context7-mcp
+[2026-01-14T23:44:28.537Z] [INFO] Package @upstash/context7-mcp validation skipped (Command failed: npx -y @upstash/context7-mcp --version
+WARNING: Using default CLIENT_IP_ENCRYPTION_KEY.
+error: too many arguments. Expected 0 arguments but got 1.
+) - will be installed on first use
+[2026-01-14T23:44:28.538Z] [SUCCESS] Context7 installed successfully
+[2026-01-14T23:44:35.054Z] [INFO] Package @wonderwhy-er/desktop-commander validation skipped (Command failed: npx -y @wonderwhy-er/desktop-commander --version
+) - will be installed on first use
+[2026-01-14T23:44:35.055Z] [SUCCESS] Desktop Commander installed successfully
+[2026-01-14T23:44:39.348Z] [INFO] Package @modelcontextprotocol/server-puppeteer validation skipped (Command failed: npx -y @modelcontextprotocol/server-puppeteer --version
+npm warn deprecated puppeteer@23.11.1: < 24.15.0 is no longer supported
+npm warn deprecated @modelcontextprotocol/server-puppeteer@2025.5.12: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+) - will be installed on first use
+[2026-01-14T23:44:39.349Z] [SUCCESS] Browser (Puppeteer) installed successfully
+[2026-01-14T23:44:39.349Z] [INFO] Health checks deferred to Story 1.8
+[2026-01-14T23:44:39.349Z] [INFO] MCP installation complete
+[2026-01-14T23:44:39.349Z] [INFO] Success: 3
+[2026-01-14T23:44:39.349Z] [INFO] Warnings: 0
+[2026-01-14T23:44:39.349Z] [INFO] Failed: 0

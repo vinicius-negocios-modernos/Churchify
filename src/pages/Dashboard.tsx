@@ -70,7 +70,7 @@ export const Dashboard: React.FC = () => {
                 </span>
                 <Link 
                   to="/new-episode" 
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-gray-400 hover:text-indigo-600"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-gray-500 hover:text-indigo-600"
                   title="Processar Culto"
                 >
                   <ArrowRight size={20} />

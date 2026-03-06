@@ -98,7 +98,7 @@ export const NewEpisode: React.FC = () => {
         <div className="flex flex-col items-center justify-center py-12 text-gray-500 animate-pulse">
           <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mb-4" />
           <p className="font-medium text-lg text-gray-800">{loadingStep || "Processando..."}</p>
-          <p className="text-sm text-gray-400 mt-2">A Inteligência Artificial está trabalhando para você.</p>
+          <p className="text-sm text-gray-500 mt-2">A Inteligência Artificial está trabalhando para você.</p>
         </div>
       )}
 
