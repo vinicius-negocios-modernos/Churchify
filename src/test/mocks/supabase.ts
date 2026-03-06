@@ -95,6 +95,7 @@ export interface MockQueryBuilder {
   eq: ReturnType<typeof vi.fn>;
   order: ReturnType<typeof vi.fn>;
   limit: ReturnType<typeof vi.fn>;
+  range: ReturnType<typeof vi.fn>;
   single: ReturnType<typeof vi.fn>;
   then: (
     onFulfilled?: ((value: MockQueryResult) => unknown) | null,
@@ -112,12 +113,13 @@ export function createMockQueryBuilder(): MockQueryBuilder {
     eq: vi.fn(),
     order: vi.fn(),
     limit: vi.fn(),
+    range: vi.fn(),
     single: vi.fn(),
     then: null!,
   };
 
   // Each chainable method returns the builder; terminal methods resolve mockResult
-  const chainable: (keyof MockQueryBuilder)[] = ['select', 'insert', 'update', 'delete', 'eq', 'order', 'limit'];
+  const chainable: (keyof MockQueryBuilder)[] = ['select', 'insert', 'update', 'delete', 'eq', 'order', 'limit', 'range'];
   for (const method of chainable) {
     (builder[method] as ReturnType<typeof vi.fn>).mockImplementation(() => builder);
   }

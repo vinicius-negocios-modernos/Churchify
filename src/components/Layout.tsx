@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { useChurch } from '@/contexts/ChurchContext';
+import { ChurchSwitcher } from '@/components/ChurchSwitcher';
 import {
   LayoutDashboard,
   PlusCircle,
@@ -13,25 +14,17 @@ import {
   X
 } from 'lucide-react';
 
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Admin',
+  editor: 'Editor',
+  viewer: 'Viewer',
+};
+
 export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
+  const { currentRole } = useChurch();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [churchInfo, setChurchInfo] = useState<{ name: string; plan: string } | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    const fetchChurch = async () => {
-      const { data } = await supabase
-        .from('churches')
-        .select('name, plan')
-        .limit(1);
-      if (data && data.length > 0) {
-        setChurchInfo(data[0] as { name: string; plan: string });
-      }
-    };
-    fetchChurch();
-  }, [user]);
 
   const navItems = [
     { path: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
@@ -77,10 +70,7 @@ export const Layout: React.FC = () => {
         <div className="p-4">
           <div className="mb-6 px-2">
              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Igreja</p>
-             <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-               <p className="font-bold text-indigo-900 text-sm">{churchInfo?.name ?? 'Minha Igreja'}</p>
-               <p className="text-xs text-indigo-600">Plano {churchInfo?.plan ?? 'Free'}</p>
-             </div>
+             <ChurchSwitcher />
           </div>
 
           <nav className="space-y-1">
@@ -111,7 +101,14 @@ export const Layout: React.FC = () => {
               className="w-8 h-8 rounded-full border border-gray-200"
             />
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.user_metadata?.full_name || "Usuário"}</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-medium text-gray-900 truncate">{user?.user_metadata?.full_name || "Usuário"}</p>
+                {currentRole && (
+                  <span className="shrink-0 inline-flex items-center rounded-full bg-indigo-100 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700">
+                    {ROLE_LABELS[currentRole] ?? currentRole}
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
             </div>
           </div>

@@ -39,9 +39,34 @@ export type EpisodeUpdate = Partial<
   Pick<Episode, 'title' | 'youtube_url' | 'sermon_date' | 'status' | 'analysis_result'>
 >;
 
+export type ChurchRole = 'admin' | 'editor' | 'viewer';
+
+export type MemberStatus = 'invited' | 'active' | 'removed';
+
 export interface ChurchMember {
+  id: string;
   church_id: string;
   user_id: string;
-  role: string;
+  role: ChurchRole;
   joined_at: string;
+  invited_by: string | null;
+  invited_email: string | null;
+  status: MemberStatus;
+  updated_at: string;
+}
+
+export type ChurchMemberInsert = Pick<ChurchMember, 'church_id' | 'user_id'> &
+  Partial<Pick<ChurchMember, 'role' | 'invited_by' | 'invited_email' | 'status'>>;
+
+export type ChurchMemberUpdate = Partial<Pick<ChurchMember, 'role' | 'status'>>;
+
+export interface AuditLog {
+  id: string;
+  church_id: string;
+  user_id: string;
+  action: string;
+  entity_type: string;
+  entity_id: string | null;
+  details: Record<string, unknown>;
+  created_at: string;
 }
