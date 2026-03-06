@@ -16,8 +16,8 @@ export interface KeyMoment {
 }
 
 export interface GeneratedImages {
-  thumbnail16_9: string; // Base64 data
-  artwork1_1: string;    // Base64 data
+  thumbnail16_9: string; // Storage URL (preferred) or base64 data URI (fallback)
+  artwork1_1: string;    // Storage URL (preferred) or base64 data URI (fallback)
 }
 
 export interface AnalysisResult {

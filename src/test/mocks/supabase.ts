@@ -136,6 +136,20 @@ export const mockQueryBuilder = createMockQueryBuilder();
 
 export const mockFrom = vi.fn().mockReturnValue(mockQueryBuilder);
 
+// ─── Storage mock ────────────────────────────────────────────────────────────
+
+export const mockStorageUpload = vi.fn().mockResolvedValue({ data: { path: 'test/path' }, error: null });
+export const mockStorageGetPublicUrl = vi.fn().mockReturnValue({
+  data: { publicUrl: 'https://storage.example.com/test/path' },
+});
+export const mockStorageRemove = vi.fn().mockResolvedValue({ data: [], error: null });
+
+export const mockStorageFrom = vi.fn().mockReturnValue({
+  upload: mockStorageUpload,
+  getPublicUrl: mockStorageGetPublicUrl,
+  remove: mockStorageRemove,
+});
+
 // ─── Supabase client mock ───────────────────────────────────────────────────
 
 export const mockSupabaseClient = {
@@ -146,6 +160,9 @@ export const mockSupabaseClient = {
     signOut: mockSignOut,
   },
   from: mockFrom,
+  storage: {
+    from: mockStorageFrom,
+  },
 };
 
 // ─── Module-level mocks (for vi.mock) ───────────────────────────────────────

@@ -4,6 +4,7 @@ import { ResultsDisplay } from '@/components/ResultsDisplay';
 import { AIProcessingStepper, ProcessingStatus } from '@/components/AIProcessingStepper';
 import { analyzeSermonContent, generateSermonImages } from '@/services/geminiService';
 import { createEpisode, updateEpisode } from '@/services/episodeService';
+import { uploadEpisodeImage } from '@/services/storageService';
 import { SermonInput, AnalysisResult } from '@/types';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -88,8 +89,47 @@ export const NewEpisode: React.FC = () => {
         }
       }
 
-      // Step 2: Finalizing — persist analysis result to DB
+      // Step 2: Finalizing — upload images to Storage and persist analysis result
       setProcessingStep(2);
+
+      // Upload generated images to Storage (replace base64 with URLs)
+      if (episodeId && data.churchId && finalResult.generatedImages) {
+        try {
+          const { thumbnail16_9, artwork1_1 } = finalResult.generatedImages;
+
+          const uploadBase64AsBlob = (base64DataUri: string): Blob => {
+            const [meta, data64] = base64DataUri.split(',');
+            const mime = meta.match(/:(.*?);/)?.[1] ?? 'image/png';
+            const bytes = globalThis.atob(data64);
+            const arr = new Uint8Array(bytes.length);
+            for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+            return new Blob([arr], { type: mime });
+          };
+
+          const [thumbnailUrl, artworkUrl] = await Promise.all([
+            uploadEpisodeImage(
+              uploadBase64AsBlob(thumbnail16_9),
+              data.churchId,
+              episodeId,
+              'thumbnail-16-9.png',
+            ),
+            uploadEpisodeImage(
+              uploadBase64AsBlob(artwork1_1),
+              data.churchId,
+              episodeId,
+              'artwork-1-1.png',
+            ),
+          ]);
+
+          finalResult.generatedImages = {
+            thumbnail16_9: thumbnailUrl,
+            artwork1_1: artworkUrl,
+          };
+        } catch (storageErr) {
+          console.warn('Could not upload images to Storage:', storageErr);
+          // Keep base64 as fallback — images still display correctly
+        }
+      }
 
       if (episodeId) {
         try {
