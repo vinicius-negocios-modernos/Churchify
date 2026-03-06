@@ -43,6 +43,14 @@ Thumbs.db
 .idea/
 *.swp
 
+# Test & Coverage
+coverage/
+test-results/
+playwright-report/
+
+# Supabase temp
+supabase/.temp/
+
 # AIOX Local
 .aiox-core/local/
 .claude/settings.local.json

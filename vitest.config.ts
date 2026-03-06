@@ -14,12 +14,18 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    exclude: ['**/node_modules/**', '**/.aiox-core/**'],
+    exclude: ['**/node_modules/**', '**/.aiox-core/**', '**/e2e/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/test/**'],
+      exclude: [
+        'src/test/**',
+        'e2e/**',
+        'src/types/**',
+        'src/components/ui/**',
+        'src/hooks/use-toast.ts',
+      ],
     },
   },
 });
