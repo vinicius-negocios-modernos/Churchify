@@ -1,0 +1,69 @@
+{
+  "keyMoments": [
+    {
+      "title": "O Momento da Virada - Davi Enfrenta Golias",
+      "timestamp": "04:30 - 06:15",
+      "reasoning": "Narrativa dramatica de confronto gera alto engajamento emocional e compartilhamento",
+      "hook": "Voce ja enfrentou um gigante que parecia impossivel de vencer?",
+      "estimatedContext": "O pregador descreve o momento em que Davi decide enfrentar Golias apesar das criticas dos irmaos e do rei Saul"
+    },
+    {
+      "title": "5 Pedras, 1 Chamado",
+      "timestamp": "12:00 - 13:45",
+      "reasoning": "Ensino pratico com lista numerada facilita retencao e gera saves no Instagram",
+      "hook": "As 5 pedras de Davi representam algo que voce precisa hoje",
+      "estimatedContext": "Explicacao simbolica das 5 pedras como ferramentas espirituais: fe, coragem, obediencia, oracao e palavra"
+    },
+    {
+      "title": "Quando Deus Escolhe o Menor",
+      "timestamp": "18:30 - 20:00",
+      "reasoning": "Tema de identidade e proposito ressoa fortemente com audiencia jovem",
+      "hook": "Deus nao olha para o que o homem olha - Ele ve o coracao",
+      "estimatedContext": "Reflexao sobre como Davi era o menor dos irmaos mas foi escolhido por Deus, aplicando a vida do ouvinte"
+    }
+  ],
+  "spotifyTitles": [
+    "Vencendo Gigantes: Como Enfrentar o Impossivel com Fe",
+    "Davi e Golias: O Segredo para Derrotar seus Maiores Desafios",
+    "Fe que Derruba Gigantes: Licoes de 1 Samuel 17 para Hoje"
+  ],
+  "spotifyDescriptionSnippet": "Descubra como a fe de Davi pode transformar seus maiores desafios em vitorias. Licoes praticas de 1 Samuel 17.",
+  "spotifyDescriptionBody": "Nesta poderosa pregacao, Pr. Joao da Silva nos leva a uma jornada pelo vale de Ela, onde um jovem pastor enfrentou o maior guerreiro filisteu.\n\nPrincipais aprendizados:\n- A fe nao depende do tamanho do desafio, mas do tamanho do nosso Deus\n- Deus prepara voce no anonimato antes de te colocar no palco\n- As armas do mundo nao servem para batalhas espirituais\n- Coragem nao e ausencia de medo, mas confianca em quem Deus e\n- Cada gigante derrotado fortalece sua fe para o proximo",
+  "spotifyCTA": "Qual gigante voce esta enfrentando hoje? Compartilhe nos comentarios e vamos orar juntos!",
+  "spotifyPollQuestion": "Qual a maior licao de Davi contra Golias para sua vida?",
+  "spotifyPollOptions": [
+    "Confiar em Deus mesmo quando parece impossivel",
+    "Nao deixar o medo te paralisar",
+    "Usar as armas que Deus te deu",
+    "Lembrar das vitorias passadas",
+    "Agir com fe, nao com logica humana"
+  ],
+  "biblicalReferences": [
+    "1 Samuel 17:1-58",
+    "1 Samuel 16:7",
+    "Filipenses 4:13",
+    "2 Corintios 10:4",
+    "Salmos 27:1",
+    "Isaias 41:10"
+  ],
+  "tags": [
+    "pregacao",
+    "davi e golias",
+    "fe",
+    "coragem",
+    "batalha espiritual",
+    "1 samuel 17",
+    "vencendo gigantes",
+    "desafios",
+    "confianca em deus",
+    "sermon",
+    "podcast evangelico",
+    "biblia",
+    "vida crista"
+  ],
+  "marketingHooks": [
+    "Se Davi venceu Golias com 5 pedras, imagine o que Deus pode fazer com a sua fe!",
+    "Seus gigantes tem data de validade. Assista e descubra por que.",
+    "A pregacao que vai mudar a forma como voce enfrenta seus problemas."
+  ]
+}
