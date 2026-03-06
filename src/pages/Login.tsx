@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { Mic2, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const Login: React.FC = () => {
   const { signInWithGoogle } = useAuth();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,8 +12,8 @@ export const Login: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
+      // signInWithOAuth redirects to Google — no navigate needed
       await signInWithGoogle();
-      navigate('/');
     } catch (err) {
       console.error(err);
       setError("Falha ao conectar com Google. Tente novamente.");

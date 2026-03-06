@@ -3,16 +3,15 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import {
-  mockUser,
-  mockOnAuthStateChanged,
-  mockSignInWithPopup,
+  mockSession,
+  mockGetSession,
+  mockSignInWithOAuth,
   mockSignOut,
-  MockGoogleAuthProvider as _MockGoogleAuthProvider,
-} from '@/test/mocks/firebase';
+  simulateAuthStateChange,
+} from '@/test/mocks/supabase';
 
-vi.mock('firebase/app', () => import('@/test/mocks/firebase').then((m) => m.firebaseAppMock));
-vi.mock('firebase/auth', () => import('@/test/mocks/firebase').then((m) => m.firebaseAuthMock));
-vi.mock('@/lib/firebase', () => import('@/test/mocks/firebase').then((m) => m.firebaseLibMock));
+vi.mock('@supabase/supabase-js', () => import('@/test/mocks/supabase').then((m) => m.supabaseJsMock));
+vi.mock('@/lib/supabase', () => import('@/test/mocks/supabase').then((m) => m.supabaseLibMock));
 
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 
@@ -22,41 +21,36 @@ function AuthConsumer() {
   return (
     <div>
       <span data-testid="loading">{String(loading)}</span>
-      <span data-testid="user">{user ? user.displayName : 'none'}</span>
+      <span data-testid="user">{user ? user.user_metadata?.full_name : 'none'}</span>
       <button onClick={signInWithGoogle}>Login</button>
       <button onClick={logout}>Logout</button>
     </div>
   );
 }
 
-describe('AuthContext', () => {
+describe('AuthContext (Supabase)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default: no session
+    mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
   });
 
   it('renders children when auth is ready', async () => {
-    // Mock onAuthStateChanged to resolve with null (no user)
-    mockOnAuthStateChanged.mockImplementation((_auth: unknown, callback: (user: null) => void) => {
-      setTimeout(() => callback(null), 0);
-      return vi.fn();
-    });
-
     render(
       <AuthProvider>
         <span>child content</span>
       </AuthProvider>,
     );
 
+    // Wait for getSession to resolve
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+
     expect(screen.getByText('child content')).toBeInTheDocument();
   });
 
-  it('provides user after login', async () => {
-    // Mock onAuthStateChanged to resolve with mockUser
-    mockOnAuthStateChanged.mockImplementation((_auth: unknown, callback: (user: typeof mockUser) => void) => {
-      setTimeout(() => callback(mockUser), 0);
-      return vi.fn();
-    });
-
+  it('starts in loading state and resolves to no user', async () => {
     render(
       <AuthProvider>
         <AuthConsumer />
@@ -66,7 +60,27 @@ describe('AuthContext', () => {
     // Initially loading
     expect(screen.getByTestId('loading').textContent).toBe('true');
 
-    // Wait for onAuthStateChanged callback
+    // Wait for getSession
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+
+    expect(screen.getByTestId('loading').textContent).toBe('false');
+    expect(screen.getByTestId('user').textContent).toBe('none');
+  });
+
+  it('provides user when session exists', async () => {
+    mockGetSession.mockResolvedValue({
+      data: { session: mockSession },
+      error: null,
+    });
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>,
+    );
+
     await act(async () => {
       await new Promise((r) => setTimeout(r, 10));
     });
@@ -75,12 +89,28 @@ describe('AuthContext', () => {
     expect(screen.getByTestId('user').textContent).toBe('Test User');
   });
 
-  it('login calls signInWithPopup', async () => {
-    mockOnAuthStateChanged.mockImplementation((_auth: unknown, callback: (user: null) => void) => {
-      setTimeout(() => callback(null), 0);
-      return vi.fn();
+  it('updates user on auth state change (SIGNED_IN)', async () => {
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>,
+    );
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
     });
 
+    expect(screen.getByTestId('user').textContent).toBe('none');
+
+    // Simulate sign-in via onAuthStateChange callback
+    act(() => {
+      simulateAuthStateChange('SIGNED_IN', mockSession);
+    });
+
+    expect(screen.getByTestId('user').textContent).toBe('Test User');
+  });
+
+  it('login calls signInWithOAuth with google provider', async () => {
     const user = userEvent.setup();
 
     render(
@@ -95,13 +125,60 @@ describe('AuthContext', () => {
 
     await user.click(screen.getByRole('button', { name: 'Login' }));
 
-    expect(mockSignInWithPopup).toHaveBeenCalledTimes(1);
+    expect(mockSignInWithOAuth).toHaveBeenCalledTimes(1);
+    expect(mockSignInWithOAuth).toHaveBeenCalledWith({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+  });
+
+  it('login throws when signInWithOAuth returns error', async () => {
+    const oauthError = { message: 'OAuth provider not configured' };
+    mockSignInWithOAuth.mockResolvedValueOnce({
+      data: { url: null, provider: 'google' },
+      error: oauthError,
+    });
+
+    // Render a consumer that captures the error
+    let caughtError: unknown = null;
+    function ErrorCapturingConsumer() {
+      const { signInWithGoogle } = useAuth();
+      return (
+        <button
+          onClick={async () => {
+            try {
+              await signInWithGoogle();
+            } catch (e) {
+              caughtError = e;
+            }
+          }}
+        >
+          Login
+        </button>
+      );
+    }
+
+    const user = userEvent.setup();
+
+    render(
+      <AuthProvider>
+        <ErrorCapturingConsumer />
+      </AuthProvider>,
+    );
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Login' }));
+
+    expect(caughtError).toEqual(oauthError);
   });
 
   it('logout calls signOut', async () => {
-    mockOnAuthStateChanged.mockImplementation((_auth: unknown, callback: (user: typeof mockUser) => void) => {
-      setTimeout(() => callback(mockUser), 0);
-      return vi.fn();
+    mockGetSession.mockResolvedValue({
+      data: { session: mockSession },
+      error: null,
     });
 
     const user = userEvent.setup();
@@ -116,8 +193,47 @@ describe('AuthContext', () => {
       await new Promise((r) => setTimeout(r, 10));
     });
 
+    expect(screen.getByTestId('user').textContent).toBe('Test User');
+
     await user.click(screen.getByRole('button', { name: 'Logout' }));
 
     expect(mockSignOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears user on SIGNED_OUT event', async () => {
+    mockGetSession.mockResolvedValue({
+      data: { session: mockSession },
+      error: null,
+    });
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>,
+    );
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 10));
+    });
+
+    expect(screen.getByTestId('user').textContent).toBe('Test User');
+
+    // Simulate sign-out
+    act(() => {
+      simulateAuthStateChange('SIGNED_OUT', null);
+    });
+
+    expect(screen.getByTestId('user').textContent).toBe('none');
+  });
+
+  it('useAuth throws when used outside AuthProvider', () => {
+    // Suppress console.error for this test
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => render(<AuthConsumer />)).toThrow(
+      'useAuth must be used within an AuthProvider',
+    );
+
+    consoleSpy.mockRestore();
   });
 });

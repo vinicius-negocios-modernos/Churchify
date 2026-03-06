@@ -89,13 +89,13 @@ export const Layout: React.FC = () => {
 
         <div className="mt-auto p-4 border-t border-gray-100">
           <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <img 
-              src={user?.photoURL || "https://ui-avatars.com/api/?name=User"} 
-              alt="User" 
+            <img
+              src={user?.user_metadata?.avatar_url || "https://ui-avatars.com/api/?name=User"}
+              alt="User"
               className="w-8 h-8 rounded-full border border-gray-200"
             />
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.displayName || "Usuário"}</p>
+              <p className="text-sm font-medium text-gray-900 truncate">{user?.user_metadata?.full_name || "Usuário"}</p>
               <p className="text-xs text-gray-500 truncate">{user?.email}</p>
             </div>
           </div>
