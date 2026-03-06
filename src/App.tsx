@@ -6,6 +6,7 @@ import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import { NewEpisode } from '@/pages/NewEpisode';
 import { Loader2 } from 'lucide-react';
+import { Toaster } from '@/components/ui/toaster';
 
 // Component to protect routes that require authentication
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -31,7 +32,7 @@ export default function App() {
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
-        
+
         <Route path="/" element={
           <ProtectedRoute>
             <Layout />
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="settings" element={<div className="p-8 text-gray-500">Configurações em desenvolvimento...</div>} />
         </Route>
       </Routes>
+      <Toaster />
     </AuthProvider>
   );
 }

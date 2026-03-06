@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Mic2, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const Login: React.FC = () => {
   const { signInWithGoogle } = useAuth();
@@ -77,10 +78,11 @@ export const Login: React.FC = () => {
               </div>
             )}
             
-            <button
+            <Button
+              variant="outline"
               onClick={handleLogin}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all shadow-sm hover:shadow-md group"
+              className="w-full flex items-center justify-center gap-3 font-semibold py-3 px-4 rounded-xl transition-all shadow-sm hover:shadow-md group"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -91,7 +93,7 @@ export const Login: React.FC = () => {
                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
-            </button>
+            </Button>
             
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-400">
