@@ -4,6 +4,7 @@ export interface SermonInput {
   preacherName: string;
   title: string;
   thumbnailFile?: File | null;
+  churchId?: string;
 }
 
 export interface KeyMoment {

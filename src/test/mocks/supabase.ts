@@ -70,6 +70,72 @@ export function simulateAuthStateChange(
   }
 }
 
+// ─── Query builder mock (for .from() chains) ───────────────────────────────
+
+export interface MockQueryResult<T = unknown> {
+  data: T | null;
+  error: { message: string; code?: string } | null;
+}
+
+/**
+ * Creates a chainable mock query builder that mirrors the Supabase PostgREST API.
+ * Each method returns the builder itself, except terminal methods (single) which
+ * resolve via mockResult.
+ *
+ * Usage:
+ *   mockFrom.mockResult = { data: [...], error: null };
+ *   await supabase.from('table').select('*').eq('id', '123').single();
+ */
+export interface MockQueryBuilder {
+  mockResult: MockQueryResult;
+  select: ReturnType<typeof vi.fn>;
+  insert: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+  delete: ReturnType<typeof vi.fn>;
+  eq: ReturnType<typeof vi.fn>;
+  order: ReturnType<typeof vi.fn>;
+  single: ReturnType<typeof vi.fn>;
+  then: (
+    onFulfilled?: ((value: MockQueryResult) => unknown) | null,
+    onRejected?: ((reason: unknown) => unknown) | null,
+  ) => Promise<unknown>;
+}
+
+export function createMockQueryBuilder(): MockQueryBuilder {
+  const builder: MockQueryBuilder = {
+    mockResult: { data: null, error: null },
+    select: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    eq: vi.fn(),
+    order: vi.fn(),
+    single: vi.fn(),
+    then: null!,
+  };
+
+  // Each chainable method returns the builder; terminal methods resolve mockResult
+  const chainable: (keyof MockQueryBuilder)[] = ['select', 'insert', 'update', 'delete', 'eq', 'order'];
+  for (const method of chainable) {
+    (builder[method] as ReturnType<typeof vi.fn>).mockImplementation(() => builder);
+  }
+
+  // single() is a terminal — resolves to mockResult
+  builder.single.mockImplementation(() => Promise.resolve(builder.mockResult));
+
+  // Make the builder itself thenable so `await supabase.from('x').select('*')` works
+  builder.then = (
+    onFulfilled?: ((value: MockQueryResult) => unknown) | null,
+    onRejected?: ((reason: unknown) => unknown) | null,
+  ) => Promise.resolve(builder.mockResult).then(onFulfilled, onRejected);
+
+  return builder;
+}
+
+export const mockQueryBuilder = createMockQueryBuilder();
+
+export const mockFrom = vi.fn().mockReturnValue(mockQueryBuilder);
+
 // ─── Supabase client mock ───────────────────────────────────────────────────
 
 export const mockSupabaseClient = {
@@ -79,6 +145,7 @@ export const mockSupabaseClient = {
     signInWithOAuth: mockSignInWithOAuth,
     signOut: mockSignOut,
   },
+  from: mockFrom,
 };
 
 // ─── Module-level mocks (for vi.mock) ───────────────────────────────────────

@@ -3,6 +3,7 @@ import { SermonForm } from '@/components/SermonForm';
 import { ResultsDisplay } from '@/components/ResultsDisplay';
 import { AIProcessingStepper, ProcessingStatus } from '@/components/AIProcessingStepper';
 import { analyzeSermonContent, generateSermonImages } from '@/services/geminiService';
+import { createEpisode, updateEpisode } from '@/services/episodeService';
 import { SermonInput, AnalysisResult } from '@/types';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,23 @@ export const NewEpisode: React.FC = () => {
     setProcessingStatus('processing');
     setProcessingStep(0);
 
+    let episodeId: string | null = null;
+
     try {
+      // Create episode as draft in DB before starting AI processing
+      try {
+        const episode = await createEpisode({
+          church_id: data.churchId ?? '',
+          title: data.title,
+          youtube_url: data.youtubeUrl,
+          status: 'processing',
+        });
+        episodeId = episode.id;
+      } catch (dbErr) {
+        console.warn('Could not persist episode (DB may be unavailable):', dbErr);
+        // Continue without persistence — graceful degradation
+      }
+
       // Step 0: Analyzing sermon
       setProcessingStep(0);
       const analysis = await analyzeSermonContent(data);
@@ -71,12 +88,34 @@ export const NewEpisode: React.FC = () => {
         }
       }
 
-      // Step 2: Finalizing
+      // Step 2: Finalizing — persist analysis result to DB
       setProcessingStep(2);
+
+      if (episodeId) {
+        try {
+          await updateEpisode(episodeId, {
+            status: 'completed',
+            analysis_result: finalResult,
+          });
+        } catch (dbErr) {
+          console.warn('Could not update episode in DB:', dbErr);
+        }
+      }
+
       setResult(finalResult);
       setProcessingStatus('completed');
     } catch (err) {
       console.error(err);
+
+      // Mark episode as failed in DB
+      if (episodeId) {
+        try {
+          await updateEpisode(episodeId, { status: 'failed' });
+        } catch {
+          // Silently fail — already in error state
+        }
+      }
+
       setError("Ocorreu um erro ao processar o conteudo. Por favor, tente novamente.");
       setProcessingStatus('error');
     } finally {
