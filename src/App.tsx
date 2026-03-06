@@ -7,6 +7,7 @@ import { Dashboard } from '@/pages/Dashboard';
 import { NewEpisode } from '@/pages/NewEpisode';
 import { Loader2 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
+import { OnboardingDialog } from '@/components/OnboardingDialog';
 
 // Component to protect routes that require authentication
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -24,7 +25,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return <Navigate to="/login" />;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <OnboardingDialog />
+      {children}
+    </>
+  );
 };
 
 export default function App() {

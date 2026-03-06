@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { SermonForm } from '@/components/SermonForm';
 import { ResultsDisplay } from '@/components/ResultsDisplay';
+import { AIProcessingStepper, ProcessingStatus } from '@/components/AIProcessingStepper';
 import { analyzeSermonContent, generateSermonImages } from '@/services/geminiService';
 import { SermonInput, AnalysisResult } from '@/types';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const NewEpisode: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState<string>("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [processingStatus, setProcessingStatus] = useState<ProcessingStatus>('idle');
+  const [processingStep, setProcessingStep] = useState(0);
+
+  // Preserve last form data for retry (AC5)
+  const lastFormDataRef = useRef<SermonInput | null>(null);
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -27,29 +33,35 @@ export const NewEpisode: React.FC = () => {
     });
   };
 
-  const handleAnalyze = async (data: SermonInput) => {
+  const handleAnalyze = useCallback(async (data: SermonInput) => {
+    // Save form data for retry (AC5)
+    lastFormDataRef.current = data;
+
     setIsLoading(true);
     setError(null);
     setResult(null);
+    setProcessingStatus('processing');
+    setProcessingStep(0);
 
     try {
-      // Step 1: Text Analysis
-      setLoadingStep("Analisando conteúdo e gerando metadados...");
+      // Step 0: Analyzing sermon
+      setProcessingStep(0);
       const analysis = await analyzeSermonContent(data);
-      
+
       let finalResult = { ...analysis };
 
-      // Step 2: Image Generation (if file provided)
+      // Step 1: Generating content
+      setProcessingStep(1);
+
       if (data.thumbnailFile) {
-        setLoadingStep("Gerando artes visuais personalizadas (16:9 e 1:1)...");
         try {
           const base64Image = await fileToBase64(data.thumbnailFile);
           const mimeType = data.thumbnailFile.type;
-          
+
           const images = await generateSermonImages(
-            base64Image, 
+            base64Image,
             mimeType,
-            data.title, 
+            data.title,
             data.preacherName
           );
           finalResult.generatedImages = images;
@@ -59,22 +71,31 @@ export const NewEpisode: React.FC = () => {
         }
       }
 
+      // Step 2: Finalizing
+      setProcessingStep(2);
       setResult(finalResult);
+      setProcessingStatus('completed');
     } catch (err) {
       console.error(err);
-      setError("Ocorreu um erro ao analisar o conteúdo. Verifique sua chave API e tente novamente.");
+      setError("Ocorreu um erro ao processar o conteudo. Por favor, tente novamente.");
+      setProcessingStatus('error');
     } finally {
       setIsLoading(false);
-      setLoadingStep("");
     }
-  };
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    if (lastFormDataRef.current) {
+      handleAnalyze(lastFormDataRef.current);
+    }
+  }, [handleAnalyze]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Nova Análise</h1>
-          <p className="text-gray-500">Gere conteúdo a partir de um vídeo do YouTube.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Nova Analise</h1>
+          <p className="text-gray-500">Gere conteudo a partir de um video do YouTube.</p>
         </div>
       </div>
 
@@ -84,21 +105,39 @@ export const NewEpisode: React.FC = () => {
         </div>
       </section>
 
-      {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex items-start gap-3 animate-fade-in">
-          <AlertCircle className="text-red-500 w-5 h-5 mt-0.5" />
-          <div>
-            <h3 className="text-red-800 font-medium">Erro na Análise</h3>
-            <p className="text-red-700 text-sm mt-1">{error}</p>
-          </div>
-        </div>
+      {/* Processing Stepper (AC1, AC2, AC3) */}
+      {(processingStatus === 'processing' || processingStatus === 'completed') && (
+        <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <AIProcessingStepper
+            currentStep={processingStep}
+            status={processingStatus}
+          />
+        </section>
       )}
 
-      {isLoading && (
-        <div className="flex flex-col items-center justify-center py-12 text-gray-500 animate-pulse">
-          <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mb-4" />
-          <p className="font-medium text-lg text-gray-800">{loadingStep || "Processando..."}</p>
-          <p className="text-sm text-gray-500 mt-2">A Inteligência Artificial está trabalhando para você.</p>
+      {/* Error with Retry Button (AC4, AC5) */}
+      {error && (
+        <div
+          className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md animate-fade-in"
+          role="alert"
+        >
+          <div className="flex items-start gap-3">
+            <AlertCircle className="text-red-500 w-5 h-5 mt-0.5 shrink-0" aria-hidden="true" />
+            <div className="flex-1">
+              <h3 className="text-red-800 font-medium">Erro na Analise</h3>
+              <p className="text-red-700 text-sm mt-1">{error}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRetry}
+                className="mt-3 text-red-700 border-red-300 hover:bg-red-100"
+                data-testid="retry-button"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
+                Tentar novamente
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
