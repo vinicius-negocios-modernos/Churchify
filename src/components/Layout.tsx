@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  LayoutDashboard, 
-  PlusCircle, 
-  Library, 
-  Settings, 
-  LogOut, 
-  Mic2, 
+import { supabase } from '@/lib/supabase';
+import {
+  LayoutDashboard,
+  PlusCircle,
+  Library,
+  Settings,
+  LogOut,
+  Mic2,
   Menu,
   X
 } from 'lucide-react';
@@ -16,6 +17,21 @@ export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [churchInfo, setChurchInfo] = useState<{ name: string; plan: string } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchChurch = async () => {
+      const { data } = await supabase
+        .from('churches')
+        .select('name, plan')
+        .limit(1);
+      if (data && data.length > 0) {
+        setChurchInfo(data[0] as { name: string; plan: string });
+      }
+    };
+    fetchChurch();
+  }, [user]);
 
   const navItems = [
     { path: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
@@ -62,8 +78,8 @@ export const Layout: React.FC = () => {
           <div className="mb-6 px-2">
              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Igreja</p>
              <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-               <p className="font-bold text-indigo-900 text-sm">Igreja Batista</p>
-               <p className="text-xs text-indigo-600">Plano Free</p>
+               <p className="font-bold text-indigo-900 text-sm">{churchInfo?.name ?? 'Minha Igreja'}</p>
+               <p className="text-xs text-indigo-600">Plano {churchInfo?.plan ?? 'Free'}</p>
              </div>
           </div>
 

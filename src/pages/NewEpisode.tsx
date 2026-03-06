@@ -8,6 +8,7 @@ import { uploadEpisodeImage } from '@/services/storageService';
 import { SermonInput, AnalysisResult } from '@/types';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { emitDashboardRefresh } from '@/lib/dashboardEvents';
 
 export const NewEpisode: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -144,6 +145,9 @@ export const NewEpisode: React.FC = () => {
 
       setResult(finalResult);
       setProcessingStatus('completed');
+
+      // Notify dashboard to refresh data (Task 8 — auto-refresh)
+      emitDashboardRefresh();
     } catch (err) {
       console.error(err);
 
