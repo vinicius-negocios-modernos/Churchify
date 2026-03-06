@@ -17,6 +17,7 @@ describe('SermonForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    sessionStorage.clear();
   });
 
   it('renders the form with all required fields', () => {

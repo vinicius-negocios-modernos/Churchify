@@ -136,7 +136,9 @@ export const Layout: React.FC = () => {
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <Outlet />
+          <div className="max-w-[1280px] mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

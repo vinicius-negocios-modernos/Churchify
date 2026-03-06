@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { SermonForm } from '@/components/SermonForm';
 import { ResultsDisplay } from '@/components/ResultsDisplay';
+import { ResultsErrorBoundary } from '@/components/ResultsErrorBoundary';
 import { AIProcessingStepper, ProcessingStatus } from '@/components/AIProcessingStepper';
 import { analyzeSermonContent, generateSermonImages } from '@/services/geminiService';
 import { createEpisode, updateEpisode } from '@/services/episodeService';
@@ -9,8 +10,10 @@ import { SermonInput, AnalysisResult } from '@/types';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { emitDashboardRefresh } from '@/lib/dashboardEvents';
+import { useToast } from '@/hooks/use-toast';
 
 export const NewEpisode: React.FC = () => {
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -146,6 +149,12 @@ export const NewEpisode: React.FC = () => {
       setResult(finalResult);
       setProcessingStatus('completed');
 
+      // Success toast (Story 1.15 — Task 7)
+      toast({
+        title: 'Conteudo gerado com sucesso!',
+        description: 'Seu episodio foi analisado e o conteudo esta pronto.',
+      });
+
       // Notify dashboard to refresh data (Task 8 — auto-refresh)
       emitDashboardRefresh();
     } catch (err) {
@@ -165,7 +174,7 @@ export const NewEpisode: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   const handleRetry = useCallback(() => {
     if (lastFormDataRef.current) {
@@ -226,7 +235,9 @@ export const NewEpisode: React.FC = () => {
 
       {result && !isLoading && (
         <div className="animate-fade-in-up">
-          <ResultsDisplay result={result} />
+          <ResultsErrorBoundary>
+            <ResultsDisplay result={result} />
+          </ResultsErrorBoundary>
         </div>
       )}
     </div>

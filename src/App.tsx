@@ -2,10 +2,15 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ChurchProvider } from '@/contexts/ChurchContext';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Layout } from '@/components/Layout';
 import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import { NewEpisode } from '@/pages/NewEpisode';
+import { LibraryPage } from '@/pages/LibraryPage';
+import { SettingsPage } from '@/pages/SettingsPage';
+import { TermsPage } from '@/pages/TermsPage';
+import { PrivacyPage } from '@/pages/PrivacyPage';
 import { Loader2 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 import { OnboardingDialog } from '@/components/OnboardingDialog';
@@ -36,9 +41,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
 
         <Route path="/" element={
           <ProtectedRoute>
@@ -47,11 +55,12 @@ export default function App() {
         }>
           <Route index element={<Dashboard />} />
           <Route path="new-episode" element={<NewEpisode />} />
-          <Route path="library" element={<div className="p-8 text-gray-500">Biblioteca em desenvolvimento...</div>} />
-          <Route path="settings" element={<div className="p-8 text-gray-500">Configurações em desenvolvimento...</div>} />
+          <Route path="library" element={<LibraryPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
       <Toaster />
     </AuthProvider>
+    </ErrorBoundary>
   );
 }

@@ -1,20 +1,22 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { AnalysisResult } from '@/types';
 import { Copy, Check, Music, Share2, TrendingUp, Hash, Youtube, BookOpen, Clock, ListChecks, MessageCircle, Download, ImageIcon, HelpCircle } from 'lucide-react';
+import { useClipboard } from '@/hooks/useClipboard';
 
 interface ResultsDisplayProps {
   result: AnalysisResult;
 }
 
 export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
+  const { copy } = useClipboard();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  const copyToClipboard = (text: string, fieldId: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = useCallback(async (text: string, fieldId: string) => {
+    await copy(text);
     setCopiedField(fieldId);
     setTimeout(() => setCopiedField(null), 2000);
-  };
+  }, [copy]);
 
   // Helper to reconstruct full description for copying in the requested order:
   // 1. Snippet SEO

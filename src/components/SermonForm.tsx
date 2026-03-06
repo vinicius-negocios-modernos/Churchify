@@ -3,6 +3,8 @@ import React, { useState, useCallback, useRef } from 'react';
 import { SermonInput } from '@/types';
 import { Youtube, User, Type, Sparkles, Image as ImageIcon, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { isValidYouTubeUrl } from '@/lib/validation';
+import { useFormPersistence } from '@/hooks/useFormPersistence';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -20,12 +22,15 @@ interface SermonFormProps {
 export const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, isLoading }) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [formData, setFormData] = useState<SermonInput>({
-    youtubeUrl: '',
-    preacherName: '',
-    title: '',
-    thumbnailFile: null
-  });
+  const [formData, setFormData, clearFormPersistence] = useFormPersistence<SermonInput>(
+    'churchify:sermon-form',
+    {
+      youtubeUrl: '',
+      preacherName: '',
+      title: '',
+      thumbnailFile: null,
+    },
+  );
   const [errors, setErrors] = useState<FormErrors>({});
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -91,7 +96,7 @@ export const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, isLoading }) =
         setFormData(prev => ({ ...prev, thumbnailFile: file }));
       }
     }
-  }, [validateFile]);
+  }, [validateFile, setFormData]);
 
   const handleDropZoneClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -102,6 +107,8 @@ export const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, isLoading }) =
 
     if (!formData.youtubeUrl.trim()) {
       newErrors.youtubeUrl = 'O link do vídeo é obrigatório.';
+    } else if (!isValidYouTubeUrl(formData.youtubeUrl)) {
+      newErrors.youtubeUrl = 'Por favor, insira um link válido do YouTube.';
     }
     if (!formData.preacherName.trim()) {
       newErrors.preacherName = 'O nome do pregador é obrigatório.';
@@ -119,6 +126,7 @@ export const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, isLoading }) =
     if (!validate()) {
       return;
     }
+    clearFormPersistence();
     onSubmit(formData);
   };
 

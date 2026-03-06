@@ -95,7 +95,14 @@ export const Login: React.FC = () => {
             
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500">
-                Ao entrar, você concorda com nossos Termos de Serviço e Política de Privacidade.
+                Ao entrar, voce concorda com nossos{' '}
+                <a href="/terms" className="text-indigo-600 hover:text-indigo-800 underline">
+                  Termos de Servico
+                </a>{' '}
+                e{' '}
+                <a href="/privacy" className="text-indigo-600 hover:text-indigo-800 underline">
+                  Politica de Privacidade
+                </a>.
               </p>
             </div>
           </div>

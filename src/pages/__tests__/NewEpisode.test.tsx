@@ -16,7 +16,7 @@ vi.mock('@/hooks/use-toast', () => ({
 }));
 
 const fillAndSubmitForm = async (user: ReturnType<typeof userEvent.setup>) => {
-  await user.type(screen.getByLabelText(/link do vídeo/i), 'https://youtube.com/watch?v=abc');
+  await user.type(screen.getByLabelText(/link do vídeo/i), 'https://youtube.com/watch?v=dQw4w9WgXcQ');
   await user.type(screen.getByLabelText(/nome do pregador/i), 'Pr. Teste');
   await user.type(screen.getByLabelText(/título da pregação/i), 'Titulo Teste');
   await user.click(screen.getByRole('button', { name: /analisar vídeo e gerar conteúdo/i }));
@@ -25,6 +25,7 @@ const fillAndSubmitForm = async (user: ReturnType<typeof userEvent.setup>) => {
 describe('NewEpisode - Retry', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    sessionStorage.clear();
   });
 
   it('shows retry button when API fails', async () => {
@@ -52,7 +53,7 @@ describe('NewEpisode - Retry', () => {
     });
 
     // Form fields should still have their values (AC5)
-    expect(screen.getByLabelText(/link do vídeo/i)).toHaveValue('https://youtube.com/watch?v=abc');
+    expect(screen.getByLabelText(/link do vídeo/i)).toHaveValue('https://youtube.com/watch?v=dQw4w9WgXcQ');
     expect(screen.getByLabelText(/nome do pregador/i)).toHaveValue('Pr. Teste');
     expect(screen.getByLabelText(/título da pregação/i)).toHaveValue('Titulo Teste');
   });
@@ -92,7 +93,7 @@ describe('NewEpisode - Retry', () => {
     // Verify retry was called with the same data
     expect(mockAnalyze).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        youtubeUrl: 'https://youtube.com/watch?v=abc',
+        youtubeUrl: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
         preacherName: 'Pr. Teste',
         title: 'Titulo Teste',
       })
