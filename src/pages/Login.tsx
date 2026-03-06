@@ -69,9 +69,9 @@ export const Login: React.FC = () => {
             <p className="mt-2 text-gray-600">Faça login para gerenciar o conteúdo da sua igreja.</p>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100" aria-live="polite">
             {error && (
-              <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100">
+              <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100" role="alert">
                 {error}
               </div>
             )}

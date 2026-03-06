@@ -138,7 +138,7 @@ export const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, isLoading }) =
     } focus:border-transparent transition-all outline-none text-sm shadow-sm`;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate aria-live="polite">
       <div className="grid grid-cols-1 gap-6">
         {/* Video URL Input */}
         <div className="space-y-2">
@@ -271,6 +271,7 @@ export const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, isLoading }) =
             accept="image/*"
             onChange={handleFileChange}
             tabIndex={-1}
+            aria-label="Upload da Thumbnail"
           />
         </div>
       </div>
@@ -279,7 +280,8 @@ export const SermonForm: React.FC<SermonFormProps> = ({ onSubmit, isLoading }) =
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full flex items-center justify-center gap-2 py-4 px-6 rounded-xl font-bold text-white shadow-lg transition-all transform active:scale-[0.98]
+          aria-busy={isLoading}
+          className={`w-full flex items-center justify-center gap-2 py-4 px-6 rounded-xl font-bold text-white shadow-lg transition-all transform active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
             ${isLoading
               ? 'bg-indigo-400 cursor-not-allowed'
               : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 hover:shadow-xl'

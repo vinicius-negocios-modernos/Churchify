@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { onDashboardRefresh } from '@/lib/dashboardEvents';
+import { createCache } from '@/lib/cache';
 import type { Episode } from '@/types/database';
 import type { Church } from '@/types/database';
 
@@ -20,6 +21,17 @@ export interface DashboardData {
   refetch: () => void;
 }
 
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+interface CachedDashboard {
+  stats: DashboardStats;
+  recentEpisodes: Episode[];
+  church: Pick<Church, 'name' | 'plan'> | null;
+}
+
+/** @internal Exported for test cleanup only */
+export const dashboardCache = createCache<CachedDashboard>(CACHE_TTL);
+
 export function useDashboardData(): DashboardData {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
@@ -32,11 +44,27 @@ export function useDashboardData(): DashboardData {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const skipCacheRef = useRef(false);
+
   const fetchData = useCallback(async () => {
     if (!user) {
       setLoading(false);
       return;
     }
+
+    // Check cache first (skip on manual refetch or event-driven refresh)
+    const cacheKey = `dashboard-${user.id}`;
+    if (!skipCacheRef.current) {
+      const cached = dashboardCache.get(cacheKey);
+      if (cached) {
+        setStats(cached.stats);
+        setRecentEpisodes(cached.recentEpisodes);
+        setChurch(cached.church);
+        setLoading(false);
+        return;
+      }
+    }
+    skipCacheRef.current = false;
 
     setLoading(true);
     setError(null);
@@ -65,16 +93,20 @@ export function useDashboardData(): DashboardData {
       const lastProcessedAt =
         completedEpisodes.length > 0 ? completedEpisodes[0].created_at : null;
 
-      setStats({
+      const newStats: DashboardStats = {
         totalEpisodes: allEpisodes.length,
         episodesThisMonth,
         lastProcessedAt,
-      });
+      };
+
+      setStats(newStats);
 
       // Recent episodes (limit 5)
-      setRecentEpisodes(allEpisodes.slice(0, 5));
+      const recent = allEpisodes.slice(0, 5);
+      setRecentEpisodes(recent);
 
       // Fetch church info
+      let churchInfo: Pick<Church, 'name' | 'plan'> | null = null;
       const { data: churchData, error: churchError } = await supabase
         .from('churches')
         .select('name, plan')
@@ -84,8 +116,16 @@ export function useDashboardData(): DashboardData {
         // Non-critical: church info is supplementary
         console.warn('Failed to fetch church info:', churchError.message);
       } else if (churchData && churchData.length > 0) {
-        setChurch(churchData[0] as Pick<Church, 'name' | 'plan'>);
+        churchInfo = churchData[0] as Pick<Church, 'name' | 'plan'>;
+        setChurch(churchInfo);
       }
+
+      // Store in cache
+      dashboardCache.set(cacheKey, {
+        stats: newStats,
+        recentEpisodes: recent,
+        church: churchInfo,
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load dashboard data';
       setError(message);
@@ -99,9 +139,14 @@ export function useDashboardData(): DashboardData {
   }, [fetchData]);
 
   // Auto-refresh when a new episode is created (Task 8)
-  useEffect(() => {
-    return onDashboardRefresh(fetchData);
+  const refetchBypassCache = useCallback(() => {
+    skipCacheRef.current = true;
+    fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    return onDashboardRefresh(refetchBypassCache);
+  }, [refetchBypassCache]);
 
   return {
     stats,
@@ -109,6 +154,6 @@ export function useDashboardData(): DashboardData {
     church,
     loading,
     error,
-    refetch: fetchData,
+    refetch: refetchBypassCache,
   };
 }

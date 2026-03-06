@@ -22,7 +22,7 @@ vi.mock('@/lib/dashboardEvents', () => ({
   onDashboardRefresh: vi.fn(() => vi.fn()),
 }));
 
-import { useDashboardData } from '@/hooks/useDashboardData';
+import { useDashboardData, dashboardCache } from '@/hooks/useDashboardData';
 import type { Episode } from '@/types/database';
 
 const sampleEpisode: Episode = {
@@ -54,6 +54,7 @@ describe('useDashboardData', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    dashboardCache.clear();
     episodesBuilder = createMockQueryBuilder();
     churchesBuilder = createMockQueryBuilder();
 

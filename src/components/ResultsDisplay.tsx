@@ -6,9 +6,10 @@ import { useClipboard } from '@/hooks/useClipboard';
 
 interface ResultsDisplayProps {
   result: AnalysisResult;
+  episodeTitle?: string;
 }
 
-export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
+export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, episodeTitle }) => {
   const { copy } = useClipboard();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -57,7 +58,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                   <span className="text-gray-900 font-medium">{title}</span>
                   <button
                     onClick={() => copyToClipboard(title, `title-${idx}`)}
-                    className="text-gray-500 hover:text-green-600 transition-colors p-2 opacity-0 group-hover:opacity-100"
+                    className="text-gray-500 hover:text-green-600 transition-colors p-2 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
                     aria-label={`Copiar título: ${title}`}
                   >
                     {copiedField === `title-${idx}` ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
@@ -75,7 +76,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                 </label>
                 <button
                   onClick={() => copyToClipboard(fullDescription, 'full')}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-full hover:bg-green-700 transition-colors shadow-sm"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-full hover:bg-green-700 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                   aria-label="Copiar descrição completa para Spotify"
                 >
                   {copiedField === 'full' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -147,7 +148,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                 </ul>
                  <button
                     onClick={() => copyToClipboard(result.spotifyPollQuestion + '\n' + result.spotifyPollOptions.join('\n'), 'poll')}
-                    className="mt-4 w-full text-xs text-gray-300 hover:text-white border border-gray-600 rounded py-2 hover:bg-white/10 transition-colors"
+                    className="mt-4 w-full text-xs text-gray-300 hover:text-white border border-gray-600 rounded py-2 hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
                     aria-label="Copiar enquete do Spotify"
                   >
                     {copiedField === 'poll' ? "Enquete Copiada!" : "Copiar Pergunta e Opções"}
@@ -168,7 +169,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                 </div>
                 <button
                   onClick={() => copyToClipboard(result.tags.join(', '), 'tags')}
-                  className="mt-4 text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
+                  className="mt-4 text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
                   aria-label="Copiar tags SEO"
                 >
                   {copiedField === 'tags' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
@@ -197,12 +198,12 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                  <span title="Imagem gerada com IA mantendo o pregador e adicionando o título"><HelpCircle className="w-4 h-4 text-gray-500" /></span>
                </label>
                <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group shadow-sm hover:shadow-md transition">
-                 <img src={result.generatedImages.thumbnail16_9} alt="Generated Thumbnail" className="w-full h-full object-cover" />
+                 <img src={result.generatedImages.thumbnail16_9} alt={`AI-generated thumbnail for ${episodeTitle || 'episode'}`} className="w-full h-full object-cover" />
                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                    <a 
                      href={result.generatedImages.thumbnail16_9} 
                      download="thumbnail-16-9.png"
-                     className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-gray-100"
+                     className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                    >
                      <Download className="w-4 h-4" /> Baixar
                    </a>
@@ -217,12 +218,12 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                  <span title="Imagem quadrada otimizada para players de áudio"><HelpCircle className="w-4 h-4 text-gray-500" /></span>
                </label>
                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group shadow-sm hover:shadow-md transition w-3/4 mx-auto md:w-full">
-                 <img src={result.generatedImages.artwork1_1} alt="Generated Artwork" className="w-full h-full object-cover" />
+                 <img src={result.generatedImages.artwork1_1} alt={`AI-generated artwork for ${episodeTitle || 'episode'}`} className="w-full h-full object-cover" />
                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                    <a 
                      href={result.generatedImages.artwork1_1} 
                      download="artwork-1-1.png"
-                     className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-gray-100"
+                     className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                    >
                      <Download className="w-4 h-4" /> Baixar
                    </a>
@@ -296,7 +297,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
               <p className="text-sm leading-relaxed font-medium">&ldquo;{hook}&rdquo;</p>
               <button
                 onClick={() => copyToClipboard(hook, `hook-${idx}`)}
-                className="mt-3 text-xs text-blue-300 hover:text-white transition-colors flex items-center gap-1"
+                className="mt-3 text-xs text-blue-300 hover:text-white transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded"
                 aria-label={`Copiar call to action: ${hook.substring(0, 40)}`}
               >
                 {copiedField === `hook-${idx}` ? "Copiado!" : "Copiar Texto"}

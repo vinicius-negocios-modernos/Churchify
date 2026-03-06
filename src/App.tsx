@@ -21,8 +21,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+      <div className="h-screen flex items-center justify-center bg-gray-50" role="status" aria-label="Carregando">
+        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" aria-hidden="true" />
+        <span className="sr-only">Carregando...</span>
       </div>
     );
   }

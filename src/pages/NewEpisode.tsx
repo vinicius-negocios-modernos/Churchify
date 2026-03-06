@@ -236,7 +236,7 @@ export const NewEpisode: React.FC = () => {
       {result && !isLoading && (
         <div className="animate-fade-in-up">
           <ResultsErrorBoundary>
-            <ResultsDisplay result={result} />
+            <ResultsDisplay result={result} episodeTitle={lastFormDataRef.current?.title} />
           </ResultsErrorBoundary>
         </div>
       )}

@@ -38,18 +38,22 @@ export const Dashboard: React.FC = () => {
   const { stats, recentEpisodes, loading, error, refetch } = useDashboardData();
 
   if (loading) {
-    return <DashboardSkeleton />;
+    return (
+      <div aria-live="polite" aria-busy={true}>
+        <DashboardSkeleton />
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="flex flex-col items-center justify-center py-16 text-center" role="alert">
         <AlertCircle className="w-12 h-12 text-red-400 mb-4" />
         <h2 className="text-lg font-bold text-gray-900 mb-2">Erro ao carregar dados</h2>
         <p className="text-gray-500 mb-4">{error}</p>
         <button
           onClick={refetch}
-          className="text-indigo-600 hover:text-indigo-800 font-medium"
+          className="text-indigo-600 hover:text-indigo-800 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded"
         >
           Tentar novamente
         </button>
@@ -62,7 +66,7 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" aria-live="polite" aria-busy={false}>
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Visao Geral</h1>
         <p className="text-gray-500">Acompanhe o status de processamento dos cultos.</p>
@@ -126,7 +130,8 @@ export const Dashboard: React.FC = () => {
                   </span>
                   <Link
                     to="/new-episode"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-gray-500 hover:text-indigo-600"
+                    className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity p-2 text-gray-500 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
+                    aria-label={`Ver detalhes de ${episode.title}`}
                     title="Ver detalhes"
                   >
                     <ArrowRight size={20} />
