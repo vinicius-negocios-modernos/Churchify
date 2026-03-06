@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { SermonInput } from '../types';
+import { SermonInput } from '@/types';
 import { Youtube, User, Type, Sparkles, Image as ImageIcon, Upload } from 'lucide-react';
 
 interface SermonFormProps {

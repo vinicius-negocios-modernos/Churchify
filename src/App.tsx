@@ -1,10 +1,10 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { Layout } from './components/Layout';
-import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
-import { NewEpisode } from './pages/NewEpisode';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { Layout } from '@/components/Layout';
+import { Login } from '@/pages/Login';
+import { Dashboard } from '@/pages/Dashboard';
+import { NewEpisode } from '@/pages/NewEpisode';
 import { Loader2 } from 'lucide-react';
 
 // Component to protect routes that require authentication

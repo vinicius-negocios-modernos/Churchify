@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, Schema, Modality } from "@google/genai";
-import { SermonInput, AnalysisResult, GeneratedImages } from '../types';
+import { SermonInput, AnalysisResult, GeneratedImages } from '@/types';
 
 // Define the response schema for structured output
 const analysisSchema: Schema = {
@@ -135,7 +135,7 @@ export const generateSermonImages = async (
   imageBase64: string, 
   mimeType: string,
   title: string, 
-  preacher: string
+  _preacher: string
 ): Promise<GeneratedImages> => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) throw new Error("API Key missing");

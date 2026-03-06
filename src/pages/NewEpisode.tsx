@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { SermonForm } from '../components/SermonForm';
-import { ResultsDisplay } from '../components/ResultsDisplay';
-import { analyzeSermonContent, generateSermonImages } from '../services/geminiService';
-import { SermonInput, AnalysisResult } from '../types';
+import { SermonForm } from '@/components/SermonForm';
+import { ResultsDisplay } from '@/components/ResultsDisplay';
+import { analyzeSermonContent, generateSermonImages } from '@/services/geminiService';
+import { SermonInput, AnalysisResult } from '@/types';
 import { Loader2, AlertCircle } from 'lucide-react';
 
 export const NewEpisode: React.FC = () => {

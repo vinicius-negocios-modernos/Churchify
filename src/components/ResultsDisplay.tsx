@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { AnalysisResult } from '../types';
+import { AnalysisResult } from '@/types';
 import { Copy, Check, Music, Share2, TrendingUp, Hash, Youtube, BookOpen, Clock, ListChecks, MessageCircle, Download, ImageIcon, HelpCircle } from 'lucide-react';
 
 interface ResultsDisplayProps {
@@ -112,7 +112,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                   <span className="text-xs font-bold text-orange-600 uppercase mb-1 flex items-center gap-1">
                     <MessageCircle className="w-3 h-3" /> 4. Call to Action (Final)
                   </span>
-                  <p className="text-gray-800 font-medium italic">"{result.spotifyCTA}"</p>
+                  <p className="text-gray-800 font-medium italic">&ldquo;{result.spotifyCTA}&rdquo;</p>
                 </div>
              </div>
              <p className="text-xs text-gray-400 mt-2 text-center">Esta é a ordem exata que será copiada para a área de transferência.</p>
@@ -189,7 +189,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
              <div className="space-y-3">
                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                  Miniatura YouTube / Vídeo (16:9)
-                 <HelpCircle className="w-4 h-4 text-gray-400" title="Imagem gerada com IA mantendo o pregador e adicionando o título" />
+                 <span title="Imagem gerada com IA mantendo o pregador e adicionando o título"><HelpCircle className="w-4 h-4 text-gray-400" /></span>
                </label>
                <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group shadow-sm hover:shadow-md transition">
                  <img src={result.generatedImages.thumbnail16_9} alt="Generated Thumbnail" className="w-full h-full object-cover" />
@@ -209,7 +209,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
              <div className="space-y-3">
                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                  Capa do Episódio Spotify (1:1)
-                 <HelpCircle className="w-4 h-4 text-gray-400" title="Imagem quadrada otimizada para players de áudio" />
+                 <span title="Imagem quadrada otimizada para players de áudio"><HelpCircle className="w-4 h-4 text-gray-400" /></span>
                </label>
                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group shadow-sm hover:shadow-md transition w-3/4 mx-auto md:w-full">
                  <img src={result.generatedImages.artwork1_1} alt="Generated Artwork" className="w-full h-full object-cover" />
@@ -253,7 +253,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
                  <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase">Hook Sugerido</p>
                     <p className="text-sm text-gray-800 italic border-l-4 border-indigo-400 pl-3 py-1 bg-indigo-50 mt-1 rounded-r">
-                      "{moment.hook}"
+                      &ldquo;{moment.hook}&rdquo;
                     </p>
                  </div>
                  
@@ -288,7 +288,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
         <div className="p-6 grid gap-4 sm:grid-cols-3">
           {result.marketingHooks.map((hook, idx) => (
             <div key={idx} className="bg-white/10 rounded-lg p-4 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
-              <p className="text-sm leading-relaxed font-medium">"{hook}"</p>
+              <p className="text-sm leading-relaxed font-medium">&ldquo;{hook}&rdquo;</p>
               <button 
                 onClick={() => copyToClipboard(hook, `hook-${idx}`)}
                 className="mt-3 text-xs text-blue-300 hover:text-white transition-colors flex items-center gap-1"
