@@ -110,6 +110,7 @@ export const ChurchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useChurch = () => {
   const context = useContext(ChurchContext);
   if (context === undefined) {
