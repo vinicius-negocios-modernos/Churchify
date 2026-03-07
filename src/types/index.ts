@@ -5,6 +5,7 @@ export interface SermonInput {
   title: string;
   thumbnailFile?: File | null;
   churchId?: string;
+  transcript?: string;
 }
 
 export interface KeyMoment {
@@ -20,16 +21,23 @@ export interface GeneratedImages {
   artwork1_1: string;    // Storage URL (preferred) or base64 data URI (fallback)
 }
 
+export interface TranscriptMeta {
+  hasTranscript: boolean;
+  transcript?: string;
+  language?: string;
+}
+
 export interface AnalysisResult {
   keyMoments: KeyMoment[];
   spotifyTitles: string[];
   spotifyDescriptionSnippet: string;
   spotifyDescriptionBody: string;
-  spotifyCTA: string; 
+  spotifyCTA: string;
   spotifyPollQuestion: string; // New field for Poll Question
-  spotifyPollOptions: string[]; 
+  spotifyPollOptions: string[];
   biblicalReferences: string[];
   tags: string[];
   marketingHooks: string[];
   generatedImages?: GeneratedImages; // New optional field for images
+  _transcriptMeta?: TranscriptMeta; // Transcript metadata from Edge Function
 }

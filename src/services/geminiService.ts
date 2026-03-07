@@ -28,6 +28,8 @@ export const analyzeSermonContent = async (input: SermonInput): Promise<Analysis
       youtubeUrl: input.youtubeUrl,
     });
 
+    // _transcriptMeta is included in the response from the Edge Function
+    // when a youtubeUrl is provided. It flows through as part of the result.
     return result;
   } catch (error) {
     console.error('Error calling AI service:', error);

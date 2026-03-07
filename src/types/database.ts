@@ -25,6 +25,9 @@ export interface Episode {
   sermon_date: string | null;
   status: EpisodeStatus;
   analysis_result: AnalysisResult | null;
+  transcript: string | null;
+  transcript_language: string | null;
+  has_transcript: boolean;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -32,11 +35,31 @@ export interface Episode {
 
 export type EpisodeInsert = Pick<Episode, 'church_id' | 'title'> &
   Partial<
-    Pick<Episode, 'youtube_url' | 'sermon_date' | 'status' | 'analysis_result' | 'created_by'>
+    Pick<
+      Episode,
+      | 'youtube_url'
+      | 'sermon_date'
+      | 'status'
+      | 'analysis_result'
+      | 'created_by'
+      | 'transcript'
+      | 'transcript_language'
+      | 'has_transcript'
+    >
   >;
 
 export type EpisodeUpdate = Partial<
-  Pick<Episode, 'title' | 'youtube_url' | 'sermon_date' | 'status' | 'analysis_result'>
+  Pick<
+    Episode,
+    | 'title'
+    | 'youtube_url'
+    | 'sermon_date'
+    | 'status'
+    | 'analysis_result'
+    | 'transcript'
+    | 'transcript_language'
+    | 'has_transcript'
+  >
 >;
 
 export type ChurchRole = 'admin' | 'editor' | 'viewer';

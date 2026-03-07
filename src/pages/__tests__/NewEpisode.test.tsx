@@ -130,3 +130,85 @@ describe('NewEpisode - Retry', () => {
     expect(screen.getByText('Analisando sermao')).toBeInTheDocument();
   });
 });
+
+describe('NewEpisode - Transcript Meta', () => {
+  const analysisWithTranscript = {
+    keyMoments: [],
+    spotifyTitles: ['T1'],
+    spotifyDescriptionSnippet: 'Snippet',
+    spotifyDescriptionBody: 'Body',
+    spotifyCTA: 'CTA',
+    spotifyPollQuestion: 'Poll?',
+    spotifyPollOptions: ['A', 'B'],
+    biblicalReferences: ['John 3:16'],
+    tags: ['faith'],
+    marketingHooks: ['Hook'],
+    _transcriptMeta: {
+      hasTranscript: true,
+      transcript: 'Full transcript...',
+      language: 'pt',
+    },
+  };
+
+  const analysisWithoutTranscript = {
+    ...analysisWithTranscript,
+    _transcriptMeta: {
+      hasTranscript: false,
+    },
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    sessionStorage.clear();
+  });
+
+  it('shows green transcript status when transcript is available', async () => {
+    mockAnalyze.mockResolvedValueOnce(analysisWithTranscript);
+    const user = userEvent.setup();
+    render(<NewEpisode />);
+
+    await fillAndSubmitForm(user);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('transcript-status')).toBeInTheDocument();
+    });
+
+    const status = screen.getByTestId('transcript-status');
+    expect(status).toHaveTextContent(/transcricao extraida/i);
+    expect(status.className).toContain('bg-green-50');
+  });
+
+  it('shows amber transcript status when transcript is not available', async () => {
+    mockAnalyze.mockResolvedValueOnce(analysisWithoutTranscript);
+    const user = userEvent.setup();
+    render(<NewEpisode />);
+
+    await fillAndSubmitForm(user);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('transcript-status')).toBeInTheDocument();
+    });
+
+    const status = screen.getByTestId('transcript-status');
+    expect(status).toHaveTextContent(/nao disponivel/i);
+    expect(status.className).toContain('bg-amber-50');
+  });
+
+  it('does not show transcript status when _transcriptMeta is absent', async () => {
+    const analysisNoMeta = { ...analysisWithTranscript };
+    delete (analysisNoMeta as Record<string, unknown>)._transcriptMeta;
+    mockAnalyze.mockResolvedValueOnce(analysisNoMeta);
+    const user = userEvent.setup();
+    render(<NewEpisode />);
+
+    await fillAndSubmitForm(user);
+
+    await waitFor(() => {
+      // Results should be displayed (meaning analysis completed)
+      expect(screen.getByText('T1')).toBeInTheDocument();
+    });
+
+    // transcript-status should NOT be present
+    expect(screen.queryByTestId('transcript-status')).not.toBeInTheDocument();
+  });
+});

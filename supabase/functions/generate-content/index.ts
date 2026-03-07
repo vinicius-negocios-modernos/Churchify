@@ -23,9 +23,95 @@ interface GenerateContentRequest {
   title?: string;
   preacherName?: string;
   youtubeUrl?: string;
+  transcript?: string;
   // For generateImages
   imageBase64?: string;
   mimeType?: string;
+}
+
+// ─── YouTube Transcript Extraction ──────────────────────────────────────────
+
+function extractVideoId(url: string): string | null {
+  const pattern =
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(pattern);
+  return match ? match[1] : null;
+}
+
+async function extractTranscript(
+  videoUrl: string
+): Promise<{ transcript: string; language: string } | null> {
+  const videoId = extractVideoId(videoUrl);
+  if (!videoId) return null;
+
+  try {
+    // Fetch YouTube page to get caption tracks
+    const response = await fetch(
+      `https://www.youtube.com/watch?v=${videoId}`,
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
+      }
+    );
+    const html = await response.text();
+
+    // Extract captions data from ytInitialPlayerResponse
+    const captionMatch = html.match(/"captionTracks":\s*(\[.*?\])/);
+    if (!captionMatch) return null;
+
+    let captionTracks: Array<{
+      languageCode: string;
+      kind?: string;
+      baseUrl?: string;
+    }>;
+    try {
+      captionTracks = JSON.parse(captionMatch[1]);
+    } catch {
+      return null;
+    }
+
+    // Prefer Portuguese, then auto-generated Portuguese, then first available
+    const ptTrack =
+      captionTracks.find((t) => t.languageCode === "pt" && !t.kind) ||
+      captionTracks.find((t) => t.languageCode === "pt") ||
+      captionTracks.find((t) => t.languageCode === "pt-BR") ||
+      captionTracks[0];
+
+    if (!ptTrack?.baseUrl) return null;
+
+    // Fetch caption XML
+    const captionResponse = await fetch(ptTrack.baseUrl);
+    const captionXml = await captionResponse.text();
+
+    // Parse XML to extract text (simple regex for timedtext XML)
+    const textSegments =
+      captionXml.match(/<text[^>]*>(.*?)<\/text>/gs) || [];
+    const transcript = textSegments
+      .map((seg) => {
+        const textMatch = seg.match(/<text[^>]*>(.*?)<\/text>/s);
+        return textMatch
+          ? textMatch[1]
+              .replace(/&amp;/g, "&")
+              .replace(/&lt;/g, "<")
+              .replace(/&gt;/g, ">")
+              .replace(/&quot;/g, '"')
+              .replace(/&#39;/g, "'")
+              .replace(/\n/g, " ")
+              .trim()
+          : "";
+      })
+      .filter(Boolean)
+      .join(" ");
+
+    if (!transcript) return null;
+
+    return { transcript, language: ptTrack.languageCode };
+  } catch (error) {
+    console.error("Transcript extraction failed:", error);
+    return null;
+  }
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -229,18 +315,31 @@ serve(async (req: Request) => {
 
       model = GEMINI_MODEL;
 
-      const prompt = `
-        Contexto: ${body.title} por ${body.preacherName}. Link: ${body.youtubeUrl}.
+      // Try to extract transcript if not provided in request
+      let transcriptText = body.transcript || null;
+      let transcriptLang: string | null = null;
 
-        Aja como um especialista em SEO/PSO para podcasts evangelicos no Spotify. Use a transcricao inferida da pregacao (baseada no tema, pregador e link) para gerar metadados otimizados para ranqueamento e descoberta.
+      if (!transcriptText && body.youtubeUrl) {
+        console.log("Attempting transcript extraction for:", body.youtubeUrl);
+        const extracted = await extractTranscript(body.youtubeUrl);
+        if (extracted) {
+          transcriptText = extracted.transcript;
+          transcriptLang = extracted.language;
+          console.log(
+            `Transcript extracted: ${transcriptText.length} chars, lang: ${transcriptLang}`
+          );
+        } else {
+          console.log("No transcript available, using fallback prompt");
+        }
+      }
 
-        ATENCAO: Como voce nao pode assistir ao video diretamente, utilize sua base de conhecimento sobre este pregador e temas biblicos para inferir o conteudo mais provavel e estruturar a resposta.
-
+      // Build prompt based on transcript availability
+      const taskInstructions = `
         Tarefas de Geracao de Conteudo:
 
         1. Momentos Chaves (Video):
            Identifique 3 a 5 momentos chaves para cortes (Reels/Shorts).
-           IMPORTANTE: Estime o TIMESTAMP (ex: 10:00) onde esse assunto provavelmente ocorre em uma pregacao tipica.
+           IMPORTANTE: ${transcriptText ? "Identifique o TIMESTAMP exato (ex: 10:00) onde cada momento ocorre na transcricao." : "Estime o TIMESTAMP (ex: 10:00) onde esse assunto provavelmente ocorre em uma pregacao tipica."}
 
         2. Titulos de Episodio (Otimizados):
            Crie 3 opcoes. O titulo deve ser conciso e focar em: Acao + Beneficio + Keyword primaria.
@@ -255,10 +354,49 @@ serve(async (req: Request) => {
            - Crie 5 opcoes de resposta para a enquete sobre o tema.
 
         5. Referencias Biblicas:
-           Liste todas as referencias biblicas provaveis citadas nesta pregacao.
+           Liste todas as referencias biblicas ${transcriptText ? "citadas na transcricao" : "provaveis citadas nesta pregacao"}.
 
         6. Gere tags SEO e frases curtas de marketing.
       `;
+
+      let prompt: string;
+
+      if (transcriptText) {
+        // Truncate transcript to ~30k chars to stay within Gemini context limits
+        const maxTranscriptLength = 30000;
+        const truncatedTranscript =
+          transcriptText.length > maxTranscriptLength
+            ? transcriptText.substring(0, maxTranscriptLength) +
+              "\n\n[... transcricao truncada por limite de tamanho ...]"
+            : transcriptText;
+
+        prompt = `
+          Voce e um especialista em SEO/PSO para podcasts evangelicos no Spotify.
+
+          TRANSCRICAO COMPLETA DO SERMAO:
+          ---
+          ${truncatedTranscript}
+          ---
+
+          Com base na transcricao REAL do sermao "${body.title}" pregado por ${body.preacherName}, gere o seguinte conteudo otimizado para Spotify:
+
+          ${taskInstructions}
+        `;
+      } else {
+        prompt = `
+          Voce e um especialista em SEO/PSO para podcasts evangelicos no Spotify.
+
+          AVISO: Nao foi possivel obter a transcricao do video. A analise sera baseada apenas no titulo e informacoes do pregador.
+
+          Titulo do sermao: "${body.title}"
+          Pregador: ${body.preacherName}
+          URL: ${body.youtubeUrl}
+
+          Como voce nao tem acesso a transcricao, utilize sua base de conhecimento sobre este pregador e temas biblicos para inferir o conteudo mais provavel.
+
+          ${taskInstructions}
+        `;
+      }
 
       const geminiResponse = await fetch(
         `${GEMINI_API_BASE}/${model}:generateContent?key=${geminiApiKey}`,
@@ -290,7 +428,22 @@ serve(async (req: Request) => {
         return errorResponse(502, "No content generated from AI service");
       }
 
-      result = JSON.parse(text);
+      const analysisResult = JSON.parse(text);
+
+      // Include transcript metadata in the response
+      result = {
+        ...analysisResult,
+        _transcriptMeta: transcriptText
+          ? {
+              hasTranscript: true,
+              transcript: transcriptText,
+              language: transcriptLang || "unknown",
+            }
+          : {
+              hasTranscript: false,
+            },
+      };
+
       tokensUsed =
         geminiData.usageMetadata?.totalTokenCount ?? 0;
 

@@ -6,8 +6,8 @@ import { AIProcessingStepper, ProcessingStatus } from '@/components/AIProcessing
 import { analyzeSermonContent, generateSermonImages } from '@/services/geminiService';
 import { createEpisode, updateEpisode } from '@/services/episodeService';
 import { uploadEpisodeImage } from '@/services/storageService';
-import { SermonInput, AnalysisResult } from '@/types';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { SermonInput, AnalysisResult, TranscriptMeta } from '@/types';
+import { AlertCircle, RefreshCw, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { emitDashboardRefresh } from '@/lib/dashboardEvents';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +19,7 @@ export const NewEpisode: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<ProcessingStatus>('idle');
   const [processingStep, setProcessingStep] = useState(0);
+  const [transcriptMeta, setTranscriptMeta] = useState<TranscriptMeta | null>(null);
 
   // Preserve last form data for retry (AC5)
   const lastFormDataRef = useRef<SermonInput | null>(null);
@@ -46,6 +47,7 @@ export const NewEpisode: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setResult(null);
+    setTranscriptMeta(null);
     setProcessingStatus('processing');
     setProcessingStep(0);
 
@@ -69,6 +71,10 @@ export const NewEpisode: React.FC = () => {
       // Step 0: Analyzing sermon
       setProcessingStep(0);
       const analysis = await analyzeSermonContent(data);
+
+      // Extract transcript metadata from the response
+      const meta = analysis._transcriptMeta ?? null;
+      setTranscriptMeta(meta);
 
       let finalResult = { ...analysis };
 
@@ -140,6 +146,9 @@ export const NewEpisode: React.FC = () => {
           await updateEpisode(episodeId, {
             status: 'completed',
             analysis_result: finalResult,
+            has_transcript: meta?.hasTranscript ?? false,
+            transcript: meta?.transcript ?? null,
+            transcript_language: meta?.language ?? null,
           });
         } catch (dbErr) {
           console.warn('Could not update episode in DB:', dbErr);
@@ -230,6 +239,42 @@ export const NewEpisode: React.FC = () => {
               </Button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Transcript Status Indicator */}
+      {transcriptMeta && !isLoading && (
+        <div
+          className={`flex items-start gap-3 p-4 rounded-md border-l-4 animate-fade-in ${
+            transcriptMeta.hasTranscript
+              ? 'bg-green-50 border-green-500'
+              : 'bg-amber-50 border-amber-500'
+          }`}
+          role="status"
+          data-testid="transcript-status"
+        >
+          {transcriptMeta.hasTranscript ? (
+            <>
+              <CheckCircle2 className="text-green-600 w-5 h-5 mt-0.5 shrink-0" aria-hidden="true" />
+              <div>
+                <p className="text-green-800 font-medium">Transcricao extraida com sucesso</p>
+                <p className="text-green-700 text-sm mt-0.5">
+                  Analise baseada no conteudo real do video
+                  {transcriptMeta.language ? ` (idioma: ${transcriptMeta.language})` : ''}.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <AlertTriangle className="text-amber-600 w-5 h-5 mt-0.5 shrink-0" aria-hidden="true" />
+              <div>
+                <p className="text-amber-800 font-medium">Transcricao nao disponivel</p>
+                <p className="text-amber-700 text-sm mt-0.5">
+                  Analise baseada no titulo do video. Resultados podem ser menos precisos.
+                </p>
+              </div>
+            </>
+          )}
         </div>
       )}
 

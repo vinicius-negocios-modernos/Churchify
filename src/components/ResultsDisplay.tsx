@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { AnalysisResult } from '@/types';
-import { Copy, Check, Music, Share2, TrendingUp, Hash, Youtube, BookOpen, Clock, ListChecks, MessageCircle, Download, ImageIcon, HelpCircle } from 'lucide-react';
+import { Copy, Check, Music, Share2, TrendingUp, Hash, Youtube, BookOpen, Clock, ListChecks, MessageCircle, Download, ImageIcon, HelpCircle, FileText, FileQuestion } from 'lucide-react';
 import { useClipboard } from '@/hooks/useClipboard';
 
 interface ResultsDisplayProps {
@@ -37,7 +37,29 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, episodeT
 
   return (
     <div className="space-y-8">
-      
+
+      {/* Analysis Source Indicator */}
+      <div
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
+          result._transcriptMeta?.hasTranscript
+            ? 'bg-green-100 text-green-800'
+            : 'bg-amber-100 text-amber-800'
+        }`}
+        data-testid="analysis-source-indicator"
+      >
+        {result._transcriptMeta?.hasTranscript ? (
+          <>
+            <FileText className="w-4 h-4 shrink-0" aria-hidden="true" />
+            <span>Analise baseada na transcricao real do video</span>
+          </>
+        ) : (
+          <>
+            <FileQuestion className="w-4 h-4 shrink-0" aria-hidden="true" />
+            <span>Analise baseada no titulo (transcricao nao disponivel)</span>
+          </>
+        )}
+      </div>
+
       {/* Spotify Optimization Section */}
       <section className="bg-white rounded-xl shadow-lg border-t-4 border-green-500 overflow-hidden">
         <div className="bg-green-50 px-6 py-4 flex items-center justify-between border-b border-green-100">
