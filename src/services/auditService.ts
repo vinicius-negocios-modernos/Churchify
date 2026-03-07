@@ -1,3 +1,4 @@
+// @planned — Infrastructure prepared for future UI integration (audit log viewer). Not currently used in app code.
 import { supabase } from '@/lib/supabase';
 import type { AuditLog } from '@/types/database';
 

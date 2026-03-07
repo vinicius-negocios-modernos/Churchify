@@ -1,3 +1,4 @@
+// @planned — Infrastructure prepared for future UI integration (church management screens). Not currently used in app code.
 import { supabase } from '@/lib/supabase';
 import type { Church, ChurchInsert, ChurchUpdate } from '@/types/database';
 

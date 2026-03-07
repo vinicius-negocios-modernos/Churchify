@@ -1,0 +1,30 @@
+name: Weekly Gemini API Check
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9 AM UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  gemini-check:
+    name: Verify Gemini API Availability
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Check Gemini API
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://generativelanguage.googleapis.com/v1beta/models?key=${{ secrets.GEMINI_API_KEY }}")
+          if [ "$response" = "200" ]; then
+            echo "Gemini API is accessible (HTTP $response)"
+          else
+            echo "Gemini API check failed (HTTP $response)"
+            exit 1
+          fi
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "::warning::Gemini API check failed. Review API key and quotas."

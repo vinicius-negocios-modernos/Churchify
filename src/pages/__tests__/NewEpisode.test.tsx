@@ -15,6 +15,22 @@ vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
 }));
 
+// Mock episodeService
+vi.mock('@/services/episodeService', () => ({
+  createEpisode: vi.fn().mockResolvedValue({ id: 'test-ep-1' }),
+  updateEpisode: vi.fn().mockResolvedValue({}),
+}));
+
+// Mock storageService
+vi.mock('@/services/storageService', () => ({
+  uploadEpisodeImage: vi.fn().mockResolvedValue('https://example.com/image.png'),
+}));
+
+// Mock dashboardEvents
+vi.mock('@/lib/dashboardEvents', () => ({
+  emitDashboardRefresh: vi.fn(),
+}));
+
 const fillAndSubmitForm = async (user: ReturnType<typeof userEvent.setup>) => {
   await user.type(screen.getByLabelText(/link do vídeo/i), 'https://youtube.com/watch?v=dQw4w9WgXcQ');
   await user.type(screen.getByLabelText(/nome do pregador/i), 'Pr. Teste');

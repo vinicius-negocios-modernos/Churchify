@@ -1,3 +1,4 @@
+// @planned — Infrastructure prepared for future UI integration (episode data export). Not currently used in app code.
 import type { Episode } from '@/types/database';
 
 const CSV_COLUMNS = ['title', 'description', 'date', 'status', 'church_id', 'created_at'] as const;
